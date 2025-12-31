@@ -1,16 +1,8 @@
-"use client";
+'use client';
 
-import { cn } from "@/utils/helpers";
-import { motion, MotionProps, useInView } from "motion/react";
-import {
-  Children,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { cn } from '@/utils/helpers';
+import { motion, MotionProps, useInView } from 'motion/react';
+import { Children, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 interface SequenceContextValue {
   completeItem: (index: number) => void;
@@ -55,7 +47,7 @@ export const AnimatedSpan = ({
     if (sequence.activeIndex === itemIndex) {
       setHasStarted(true);
     }
-  }, [sequence?.activeIndex, sequence?.sequenceStarted, hasStarted, itemIndex]);
+  }, [sequence, sequence?.activeIndex, sequence?.sequenceStarted, hasStarted, itemIndex]);
 
   const shouldAnimate = sequence ? hasStarted : startOnView ? isInView : true;
 
@@ -65,7 +57,7 @@ export const AnimatedSpan = ({
       initial={{ opacity: 0, y: -5 }}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: -5 }}
       transition={{ duration: 0.3, delay: sequence ? 0 : delay / 1000 }}
-      className={cn("grid text-sm font-normal tracking-tight", className)}
+      className={cn('grid text-sm font-normal tracking-tight', className)}
       onAnimationComplete={() => {
         if (!sequence) return;
         if (itemIndex === null) return;
@@ -92,12 +84,12 @@ export const TypingAnimation = ({
   className,
   duration = 60,
   delay = 0,
-  as: Component = "span",
+  as: Component = 'span',
   startOnView = true,
   ...props
 }: TypingAnimationProps) => {
-  if (typeof children !== "string") {
-    throw new Error("TypingAnimation: children must be a string. Received:");
+  if (typeof children !== 'string') {
+    throw new Error('TypingAnimation: children must be a string. Received:');
   }
 
   const MotionComponent = useMemo(
@@ -108,7 +100,7 @@ export const TypingAnimation = ({
     [Component]
   );
 
-  const [displayedText, setDisplayedText] = useState<string>("");
+  const [displayedText, setDisplayedText] = useState<string>('');
   const [started, setStarted] = useState(false);
   const elementRef = useRef<HTMLElement | null>(null);
   const isInView = useInView(elementRef as React.RefObject<Element>, {
@@ -143,6 +135,7 @@ export const TypingAnimation = ({
     startOnView,
     isInView,
     started,
+    sequence,
     sequence?.activeIndex,
     sequence?.sequenceStarted,
     itemIndex,
@@ -167,12 +160,12 @@ export const TypingAnimation = ({
     return () => {
       clearInterval(typingEffect);
     };
-  }, [children, duration, started]);
+  }, [children, duration, started, itemIndex, sequence]);
 
   return (
     <MotionComponent
       ref={elementRef}
-      className={cn("text-sm font-normal tracking-tight", className)}
+      className={cn('text-sm font-normal tracking-tight', className)}
       {...props}
     >
       {displayedText}
@@ -206,9 +199,7 @@ export const Terminal = ({
     if (!sequence) return null;
     return {
       completeItem: (index: number) => {
-        setActiveIndex((current) =>
-          index === current ? current + 1 : current
-        );
+        setActiveIndex((current) => (index === current ? current + 1 : current));
       },
       activeIndex,
       sequenceStarted: sequenceHasStarted,
@@ -229,28 +220,24 @@ export const Terminal = ({
     <div
       ref={containerRef}
       className={cn(
-        "z-0 h-full max-h-[400px] w-full max-w-lg rounded-xl border border-border bg-background",
+        'z-0 h-full max-h-[400px] w-full max-w-lg rounded-xl border border-border bg-background',
         className
       )}
     >
-      <div className="flex flex-col gap-y-2 border-b border-border p-4">
-        <div className="flex flex-row gap-x-2">
-          <div className="h-2 w-2 rounded-full bg-red-500"></div>
-          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+      <div className='flex flex-col gap-y-2 border-b border-border p-4'>
+        <div className='flex flex-row gap-x-2'>
+          <div className='h-2 w-2 rounded-full bg-red-500'></div>
+          <div className='h-2 w-2 rounded-full bg-yellow-500'></div>
+          <div className='h-2 w-2 rounded-full bg-green-500'></div>
         </div>
       </div>
-      <pre className="p-4">
-        <code className="grid gap-y-1 overflow-auto">{wrappedChildren}</code>
+      <pre className='p-4'>
+        <code className='grid gap-y-1 overflow-auto'>{wrappedChildren}</code>
       </pre>
     </div>
   );
 
   if (!sequence) return content;
 
-  return (
-    <SequenceContext.Provider value={contextValue}>
-      {content}
-    </SequenceContext.Provider>
-  );
+  return <SequenceContext.Provider value={contextValue}>{content}</SequenceContext.Provider>;
 };
